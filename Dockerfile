@@ -1,5 +1,5 @@
-#FROM python:latest
-FROM python:alpine
+FROM python:latest
+#FROM python:alpine
 WORKDIR /code
 COPY ./requirements.txt /code/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
