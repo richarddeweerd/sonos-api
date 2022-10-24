@@ -1,0 +1,42 @@
+stages:
+  - build
+  - upload
+
+# docker_build_dev:
+#   stage: build
+#   only:
+#     - main
+#   script:
+#     - docker login gitlab.deweerd.biz:5050 -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD
+#     - docker build -t gitlab.deweerd.biz:5050/devops/sonos-api:latest .
+    
+
+# docker_upload_dev:
+#   stage: upload
+#   only:
+#     - main
+#   script:
+#     - docker push gitlab.deweerd.biz:5050/devops/sonos-api:latest
+  
+
+docker_build_prod:
+  stage: build
+  only:
+    - deploy
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY    
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE" .
+
+
+docker_upload_prod:
+  stage: upload
+  only:
+    - deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker push "$CI_REGISTRY_IMAGE"
