@@ -1,7 +1,13 @@
-import re
-
 from fastapi import FastAPI
 from soco import SoCo, discover
+
+from app.sonosActions import (
+    action_next,
+    action_pause,
+    action_play,
+    action_previous,
+    action_volume,
+)
 
 # tags_metadata = [
 #     {
@@ -23,10 +29,18 @@ app = FastAPI()
 
 ZONES = {}
 
+actions = {
+    "next": action_next,
+    "pause": action_pause,
+    "play": action_play,
+    "previous": action_previous,
+    "volume": action_volume,
+}
+
 
 def update_zone_info():
     # zonelist = list(discover())
-    for zone in discover():
+    for zone in discover():  # type: ignore
         ZONES[zone.player_name] = zone
 
 
@@ -40,45 +54,16 @@ def get_zone_info(zone: SoCo):
     zone_info["media"] = zone.get_current_media_info()
     zone_info["track"] = zone.get_current_track_info()
     zone_info["transport"] = zone.get_current_transport_info()
+    zone_info["radio"] = zone.get_favorite_radio_stations()
     return zone_info
 
 
 def get_all_zone_info():
     data = []
-    for zone in ZONES:
-        data.append(get_zone_info(ZONES[zone]))
+    zone: SoCo
+    for zone in ZONES.values():
+        data.append(get_zone_info(zone))
     return data
-
-
-def action_play(zone, parameter):
-    ZONES[zone].play()
-    return {"Status": "Ok"}
-
-
-def action_pause(zone, parameter):
-    ZONES[zone].pause()
-    return {"Status": "Ok"}
-
-
-def set_relative_volume(zone, dir, volume):
-    if dir == "-":
-        volume = int(volume) * -1
-    ZONES[zone].set_relative_volume(volume)
-    return {"Status": "Ok"}
-
-
-def action_volume(zone, parameter):
-    if parameter is None:
-        return {"error": "parameter error"}
-    if parameter[0] == "+" or parameter[0] == "-":
-        return set_relative_volume(zone, parameter[0], parameter[1:])
-    if parameter.isnumeric():
-        ZONES[zone].volume = parameter
-        return {"Status": "Ok"}
-    return {"error": "parameter error"}
-
-
-actions = {"play": action_play, "pause": action_pause, "volume": action_volume}
 
 
 @app.get("/zones")
@@ -91,7 +76,7 @@ async def root():
 @app.get("/pauseall")
 async def pauseall():
     for zone in ZONES:
-        ZONES[zone].pause()
+        action_pause(zone)
     return get_all_zone_info()
 
 
@@ -99,7 +84,7 @@ async def pauseall():
 @app.get("/resumeall")
 async def resume():
     for zone in ZONES:
-        ZONES[zone].play()
+        action_play(zone)
     return get_all_zone_info()
 
 
@@ -117,4 +102,4 @@ async def play(zone, action, parameter=None):
         return {"error": "unknown zone"}
     if action not in actions:
         return {"error": "unknown action"}
-    return actions[action](zone, parameter)
+    return actions[action](ZONES["zone"], parameter)

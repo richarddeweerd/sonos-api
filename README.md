@@ -35,12 +35,7 @@ Swagger file http://\<sonos-api\>/docs
 /{zone_name}/{action}/{parameter}
 ```
 
-## Currently supported zone actions:
-```
-play
-pause
-volume/[+/-]<volume>
-```
+
 # Actions
 ## /zones
 Any call to http://<sonos-api>:8080/ and http://<sonos-api>:8080/zones will rescan the network for new Sonos devices and return all the zone information
@@ -48,14 +43,23 @@ Any call to http://<sonos-api>:8080/ and http://<sonos-api>:8080/zones will resc
 Returns the info of a specific zone
 
 # Zone actions
+## Currently supported zone actions:
 
-## play
-Starts playout
+[next](#next)  
+[pause](#pause)  
+[play](#play)  
+[previous](#previous)  
+[volume](#volume)  
 
+## next
+Next item in the queue
 ## pause
 Pauses playout
-
-## volume/[+/-]\<volume>
+## play
+Starts playout
+## previous
+Previous item in the queue
+## volume
 Changes the volume of the zone.
 The parameter is absolute or relative. If the volume is prefixed with +/- it will be treated as a relative volume change
 
