@@ -35,12 +35,7 @@ Swagger file http://\<sonos-api\>/docs
 /{zone_name}/{action}/{parameter}
 ```
 
-## Currently supported zone actions:
-```
-play
-pause
-volume/[+/-]<volume>
-```
+
 # Actions
 ## /zones
 Any call to http://<sonos-api>:8080/ and http://<sonos-api>:8080/zones will rescan the network for new Sonos devices and return all the zone information
@@ -48,22 +43,63 @@ Any call to http://<sonos-api>:8080/ and http://<sonos-api>:8080/zones will resc
 Returns the info of a specific zone
 
 # Zone actions
+## Currently supported zone actions:
 
-## play
-Starts playout
+[next](#next)  
+[pause](#pause)  
+[play](#play)  
+[previous](#previous)  
+[volume](#volume)  
+[groupVolume](#groupvolume)  
+[mute](#mute)  
+[unmute](#unmute)  
+[muteToggle](#mutetoggle)  
+[join](#join)  
+[unjoin](#unjoin)  
 
+## next
+Next item in the queue
 ## pause
 Pauses playout
-
-## volume/[+/-]\<volume>
+## play
+Starts playout
+## previous
+Previous item in the queue
+## volume
 Changes the volume of the zone.
 The parameter is absolute or relative. If the volume is prefixed with +/- it will be treated as a relative volume change
 
 Examples:
 
-    /<zone name>/volume/10      Sets the volume to 10 percent
-    /<zone name>/volume/+10     Increases the volume with 10 percent
-    /<zone name>/volume/-10     Decreases the volume with 10 percent
+    /<zone_name>/volume/10      Sets the volume to 10 percent
+    /<zone_name>/volume/+10     Increases the volume with 10 percent
+    /<zone_name>/volume/-10     Decreases the volume with 10 percent
 
+## groupVolume
+Changes the volume of the group where this zone is part of.
+The parameter is absolute or relative. If the volume is prefixed with +/- it will be treated as a relative volume change
 
+Examples:
 
+    /<zone_name>/groupVolume/10      Sets the volume to 10 percent
+    /<zone_name>/groupVolume/+10     Increases the volume with 10 percent
+    /<zone_name>/groupVolume/-10     Decreases the volume with 10 percent
+
+## mute
+Mutes the zone
+## unmute
+Unmutes the zone
+## muteToggle
+Toggles the mute state of the zone
+## groupMute
+Mutes the group
+## groupUnmute
+Unmutes the group
+## groupMuteToggle
+Toggles the mute state of the group
+## join
+Joins the zone into the zone_master
+
+    /<zone_name>/join/<zone_master>
+## unjoin
+Unjoins the zone from the group
