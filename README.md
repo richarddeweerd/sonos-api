@@ -50,6 +50,12 @@ Returns the info of a specific zone
 [play](#play)  
 [previous](#previous)  
 [volume](#volume)  
+[groupVolume](#groupvolume)  
+[mute](#mute)  
+[unmute](#unmute)  
+[muteToggle](#mutetoggle)  
+[join](#join)  
+[unjoin](#unjoin)  
 
 ## next
 Next item in the queue
@@ -65,9 +71,35 @@ The parameter is absolute or relative. If the volume is prefixed with +/- it wil
 
 Examples:
 
-    /<zone name>/volume/10      Sets the volume to 10 percent
-    /<zone name>/volume/+10     Increases the volume with 10 percent
-    /<zone name>/volume/-10     Decreases the volume with 10 percent
+    /<zone_name>/volume/10      Sets the volume to 10 percent
+    /<zone_name>/volume/+10     Increases the volume with 10 percent
+    /<zone_name>/volume/-10     Decreases the volume with 10 percent
 
+## groupVolume
+Changes the volume of the group where this zone is part of.
+The parameter is absolute or relative. If the volume is prefixed with +/- it will be treated as a relative volume change
 
+Examples:
 
+    /<zone_name>/groupVolume/10      Sets the volume to 10 percent
+    /<zone_name>/groupVolume/+10     Increases the volume with 10 percent
+    /<zone_name>/groupVolume/-10     Decreases the volume with 10 percent
+
+## mute
+Mutes the zone
+## unmute
+Unmutes the zone
+## muteToggle
+Toggles the mute state of the zone
+## groupMute
+Mutes the group
+## groupUnmute
+Unmutes the group
+## groupMuteToggle
+Toggles the mute state of the group
+## join
+Joins the zone into the zone_master
+
+    /<zone_name>/join/<zone_master>
+## unjoin
+Unjoins the zone from the group
