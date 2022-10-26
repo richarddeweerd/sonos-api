@@ -76,6 +76,10 @@ def get_all_zone_info():
     return data
 
 
+def get_zone_master(zone: SoCo) -> SoCo:
+    return zone.group.coordinator  # type: ignore
+
+
 @app.get("/zones")
 @app.get("/")
 async def root():
@@ -139,6 +143,7 @@ async def play(zone_name):
         return {"error": "unknown zone"}
     zone: SoCo
     zone = ZONES[zone_name]
+    zone = get_zone_master(zone)
     try:
         return action_play(zone)
     except SoCoUPnPException:
@@ -151,6 +156,7 @@ async def pause(zone_name):
         return {"error": "unknown zone"}
     zone: SoCo
     zone = ZONES[zone_name]
+    zone = get_zone_master(zone)
     try:
         return action_pause(zone)
     except SoCoUPnPException:
@@ -163,6 +169,7 @@ async def next(zone_name):
         return {"error": "unknown zone"}
     zone: SoCo
     zone = ZONES[zone_name]
+    zone = get_zone_master(zone)
     try:
         return action_next(zone)
     except SoCoUPnPException:
@@ -175,6 +182,7 @@ async def previous(zone_name):
         return {"error": "unknown zone"}
     zone: SoCo
     zone = ZONES[zone_name]
+    zone = get_zone_master(zone)
     try:
         return action_previous(zone)
     except SoCoUPnPException:
@@ -242,6 +250,7 @@ async def favorite(zone_name, favorite_name):
         return {"error": "unknown zone"}
     zone: SoCo
     zone = ZONES[zone_name]
+    zone = get_zone_master(zone)
     ml = MusicLibrary(soco=zone)
     favs = ml.get_sonos_favorites()
     fav: DidlFavorite
