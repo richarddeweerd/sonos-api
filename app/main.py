@@ -1,20 +1,18 @@
 from fastapi import FastAPI
 from soco import SoCo, discover
+from soco.data_structures import DidlFavorite
 from soco.exceptions import SoCoUPnPException
 from soco.groups import ZoneGroup
+from soco.music_library import MusicLibrary
 
 from app.sonosActions import (
     action_group_mute,
-    action_group_mute_toggle,
-    action_group_unmute,
     action_group_volume,
     action_mute,
-    action_mute_toggle,
     action_next,
     action_pause,
     action_play,
     action_previous,
-    action_unmute,
     action_volume,
 )
 
@@ -22,6 +20,8 @@ app = FastAPI()
 
 ZONES = dict[str, SoCo]
 ZONES = {}
+
+BASE_STATES = ["on", "off", "toggle"]
 
 
 def update_zone_info():
@@ -53,8 +53,16 @@ def get_zone_info(zone: SoCo):
     zone_info["media"] = zone.get_current_media_info()
     zone_info["track"] = zone.get_current_track_info()
     zone_info["transport"] = zone.get_current_transport_info()
-    zone_info["radio"] = zone.get_favorite_radio_stations()
     zone_info["group"] = get_group_info(zone.group)  # type: ignore
+    zone_info["soundbar"] = zone.is_soundbar
+    zone_info["dialog_mode"] = zone.dialog_mode
+    zone_info["dialog_level"] = zone.dialog_level
+    zone_info["night_mode"] = zone.night_mode
+    zone_info["equalizer"] = {}
+    zone_info["equalizer"]["balance"] = zone.balance
+    zone_info["equalizer"]["bass"] = zone.bass
+    zone_info["equalizer"]["trebble"] = zone.treble
+    zone_info["equalizer"]["loudness"] = zone.loudness
     return zone_info
 
 
@@ -80,7 +88,7 @@ async def groups():
     grouplist = {}
     for zone in ZONES.values():
         grp: ZoneGroup
-        grp = zone.group  #  type: ignore
+        grp = zone.group  # type: ignore
         # print(grp)
         grouplist[grp.uid] = grp
     res = []
@@ -88,6 +96,15 @@ async def groups():
     for grp in grouplist.values():
         res.append(get_group_info(grp))
     return res
+
+
+@app.get("/favorites")
+async def favorites():
+    zone: SoCo
+    for zone in ZONES.values():
+        ml = MusicLibrary(soco=zone)
+        return ml.get_sonos_favorites()
+    return {"error": "unknown zone"}
 
 
 @app.get("/pauseall")
@@ -188,79 +205,92 @@ async def group_volume(zone_name, parameter):
         return {"error": "command not available"}
 
 
-@app.get("/{zone_name}/mute")
-async def mute(zone_name):
+@app.get("/{zone_name}/mute/{state}")
+async def mute(zone_name, state):
     if zone_name not in ZONES:
         return {"error": "unknown zone"}
+    if state not in BASE_STATES:
+        return {"error": "unknown state"}
     zone: SoCo
     zone = ZONES[zone_name]
     try:
-        return action_mute(zone)
+        return action_mute(zone, state)
     except SoCoUPnPException:
         return {"error": "command not available"}
 
 
-@app.get("/{zone_name}/unmute")
-async def unmute(zone_name):
+@app.get("/{zone_name}/groupMute/{state}")
+async def groupmute(zone_name, state):
     if zone_name not in ZONES:
         return {"error": "unknown zone"}
+    if state not in BASE_STATES:
+        return {"error": "unknown state"}
     zone: SoCo
     zone = ZONES[zone_name]
     try:
-        return action_unmute(zone)
-    except SoCoUPnPException:
-        return {"error": "command not available"}
-
-
-@app.get("/{zone_name}/muteToggle")
-async def mutetoggle(zone_name):
-    if zone_name not in ZONES:
-        return {"error": "unknown zone"}
-    zone: SoCo
-    zone = ZONES[zone_name]
-    try:
-        return action_mute_toggle(zone)
-    except SoCoUPnPException:
-        return {"error": "command not available"}
-
-
-@app.get("/{zone_name}/groupMute")
-async def groupmute(zone_name):
-    if zone_name not in ZONES:
-        return {"error": "unknown zone"}
-    zone: SoCo
-    zone = ZONES[zone_name]
-    try:
-        action_group_mute(zone.group)  # type: ignore
+        action_group_mute(zone.group, state)  # type: ignore
         return get_group_info(zone.group)  # type: ignore
     except SoCoUPnPException:
         return {"error": "command not available"}
 
 
-@app.get("/{zone_name}/groupUnmute")
-async def groupunmute(zone_name):
+@app.get("/{zone_name}/favorite/{favorite_name}")
+async def favorite(zone_name, favorite_name):
     if zone_name not in ZONES:
         return {"error": "unknown zone"}
     zone: SoCo
     zone = ZONES[zone_name]
-    try:
-        action_group_unmute(zone.group)  # type: ignore
-        return get_group_info(zone.group)  # type: ignore
-    except SoCoUPnPException:
-        return {"error": "command not available"}
+    ml = MusicLibrary(soco=zone)
+    favs = ml.get_sonos_favorites()
+    fav: DidlFavorite
+    for fav in favs:
+        if fav.title == favorite_name:
+            uri = fav.get_uri()
+            dic = fav.__dict__
+            supported_station_types = ["TuneIn Station", "Deezer Station"]
+            if dic["description"] in supported_station_types:
+                meta = dic["resource_meta_data"]
+                # meta = get_tunein_metadata(favorite)
+                try:
+                    zone.play_uri(uri=uri, meta=meta)
+                except SoCoUPnPException:
+                    return {"error": "UPnP"}
+                return zone.get_current_media_info()
+            zone.stop()
+            zone.clear_queue()
+            zone.add_to_queue(fav.reference)
+            zone.play_from_queue(0)
+            return zone.get_current_track_info()
+    return {"error": "Favorite " + favorite_name + " not found"}
 
 
-@app.get("/{zone_name}/groupMuteToggle")
-async def groupmutetoggle(zone_name):
+@app.get("/{zone_name}/queue")
+async def queue(zone_name):
     if zone_name not in ZONES:
         return {"error": "unknown zone"}
     zone: SoCo
     zone = ZONES[zone_name]
-    try:
-        action_group_mute_toggle(zone.group)  # type: ignore
-        return get_group_info(zone.group)  # type: ignore
-    except SoCoUPnPException:
-        return {"error": "command not available"}
+    return zone.get_queue()
+
+
+@app.get("/{zone_name}/play_uri/{uri}")
+async def play_uri(zone_name, uri):
+    if zone_name not in ZONES:
+        return {"error": "unknown zone"}
+    zone: SoCo
+    zone = ZONES[zone_name]
+    zone.play_uri(uri=uri)
+    return zone.get_current_track_info()
+
+
+@app.get("/{zone_name}/shuffle")
+async def shuffle(zone_name):
+    if zone_name not in ZONES:
+        return {"error": "unknown zone"}
+    zone: SoCo
+    zone = ZONES[zone_name]
+    zone.shuffle()
+    return zone.get_current_track_info()
 
 
 @app.get("/{zone_name}/join/{zone_master}")
@@ -278,10 +308,8 @@ async def join_zone(zone_name, zone_master):
         return {"error": "command not available"}
 
 
-# @app.get("/{zone_name}/unJoin/{zone_master}")
-@app.get("/{zone_name}/unjoin")
-# async def join_zones(zone_name, zone_master):
-async def unjoin_zone(zone_name):
+@app.get("/{zone_name}/leave")
+async def leave_zone(zone_name):
     if zone_name not in ZONES:
         return {"error": "unknown zone name: " + zone_name}
     zone: SoCo
