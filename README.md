@@ -44,23 +44,6 @@ Returns the info of a specific zone
 
 # Zone actions
 ## Currently supported zone actions:
-
-[next](#next)  
-[pause](#pause)  
-[play](#play)  
-[previous](#previous)  
-[volume](#volume)  
-[groupVolume](#groupvolume)  
-[mute](#mute)  
-[groupMute](#mute)  
-[join](#join)  
-[leave](#leave)  
-[favorites](#favorites)  
-[queue](#queue)  
-[shuffle](#shuffle)  
-[favorite](#favorite)  
-[play_uri](#play_uri)  
-
 ## next
 Next item in the queue
 ## pause
@@ -90,10 +73,9 @@ Examples:
     /<zone_name>/groupVolume/-10     Decreases the volume with 10 percent
 
 ## mute/option
-Controls the mute state of the zone valid options: [on,off,toggle]
-
+Available values : on, off, toggle
 ## groupMute/option
-Controls the mute state of the group valid options: [on,off,toggle]
+Available values : on, off, toggle
 ## join/<zone_master>
 Joins the zone into the zone_master
 
@@ -104,10 +86,14 @@ Leaves the group
 list the favorites
 ## queue
 Returns the player queue
-## shuffle
-Turns on Shuffle
+## shuffle/option
+Available values : on, off, toggle
+## repeat/option
+Available values : on, off, toggle, one
+## play_mode/option
+Available values : normal, shuffle_norepeat, shuffle, repeat_all, shuffle_repeat_one, repeat_one
 ## favorite/<favorite>
-Selects and playes a fovorite.
+Selects and playes a favorite.
 Currently tested with Spotify playlists, TuneIn stations and deezer playlists
 ## play_uri/<uri>
 Plays uri (very experimental)
