@@ -5,6 +5,7 @@ from soco.exceptions import SoCoUPnPException
 from soco.groups import ZoneGroup
 from soco.music_library import MusicLibrary
 
+from app.datastructures import Base_States, Play_Modes, Repeat_States
 from app.sonosActions import (
     action_group_mute,
     action_group_volume,
@@ -12,7 +13,10 @@ from app.sonosActions import (
     action_next,
     action_pause,
     action_play,
+    action_play_mode,
     action_previous,
+    action_repeat,
+    action_shuffle,
     action_volume,
 )
 
@@ -20,8 +24,6 @@ app = FastAPI()
 
 ZONES = dict[str, SoCo]
 ZONES = {}
-
-BASE_STATES = ["on", "off", "toggle"]
 
 
 def update_zone_info():
@@ -206,11 +208,11 @@ async def group_volume(zone_name, parameter):
 
 
 @app.get("/{zone_name}/mute/{state}")
-async def mute(zone_name, state):
+async def mute(zone_name, state: Base_States):
     if zone_name not in ZONES:
         return {"error": "unknown zone"}
-    if state not in BASE_STATES:
-        return {"error": "unknown state"}
+    # if state not in BASE_STATES:
+    #     return {"error": "unknown state"}
     zone: SoCo
     zone = ZONES[zone_name]
     try:
@@ -220,11 +222,11 @@ async def mute(zone_name, state):
 
 
 @app.get("/{zone_name}/groupMute/{state}")
-async def groupmute(zone_name, state):
+async def groupmute(zone_name, state: Base_States):
     if zone_name not in ZONES:
         return {"error": "unknown zone"}
-    if state not in BASE_STATES:
-        return {"error": "unknown state"}
+    # if state not in BASE_STATES:
+    #     return {"error": "unknown state"}
     zone: SoCo
     zone = ZONES[zone_name]
     try:
@@ -283,14 +285,41 @@ async def play_uri(zone_name, uri):
     return zone.get_current_track_info()
 
 
-@app.get("/{zone_name}/shuffle")
-async def shuffle(zone_name):
+@app.get("/{zone_name}/shuffle/{parameter}")
+async def shuffle(zone_name, parameter: Base_States):
     if zone_name not in ZONES:
         return {"error": "unknown zone"}
     zone: SoCo
     zone = ZONES[zone_name]
-    zone.shuffle()
-    return zone.get_current_track_info()
+    try:
+        return action_shuffle(zone, parameter)
+    except SoCoUPnPException:
+        return {"error": "action not available"}
+    return {"shuffle": zone.shuffle}
+
+
+@app.get("/{zone_name}/repeat/{parameter}")
+async def repeat(zone_name, parameter: Repeat_States):
+    if zone_name not in ZONES:
+        return {"error": "unknown zone"}
+    zone: SoCo
+    zone = ZONES[zone_name]
+    try:
+        return action_repeat(zone, parameter)
+    except SoCoUPnPException:
+        return {"error": "action not available"}
+
+
+@app.get("/{zone_name}/play_mode/{parameter}")
+async def play_mode(zone_name, parameter: Play_Modes):
+    if zone_name not in ZONES:
+        return {"error": "unknown zone"}
+    zone: SoCo
+    zone = ZONES[zone_name]
+    try:
+        return action_play_mode(zone, parameter)
+    except SoCoUPnPException:
+        return {"error": "action not available"}
 
 
 @app.get("/{zone_name}/join/{zone_master}")
