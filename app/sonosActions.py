@@ -1,6 +1,8 @@
 from soco import SoCo
 from soco.groups import ZoneGroup
 
+from app.datastructures import Base_States, Play_Modes, Repeat_States
+
 
 def action_play(zone: SoCo) -> dict:
     zone.play()
@@ -70,26 +72,70 @@ def action_previous(zone: SoCo) -> dict:
     return zone_info
 
 
-def action_mute(zone: SoCo, state: str) -> dict:
-    if state == "toggle":
+def action_mute(zone: SoCo, state: Base_States) -> dict:
+    if state == Base_States.TOGGLE:
         zone.mute = not zone.mute
-    if state == "off":
+    if state == Base_States.OFF:
         zone.mute = False
-    if state == "on":
+    if state == Base_States.ON:
         zone.mute = True
     zone_info = {}
     zone_info["mute"] = zone.mute
     return zone_info
 
 
-def action_group_mute(grp: ZoneGroup, state: str):
-    grp.mute = True
-    if state == "toggle":
+def action_group_mute(grp: ZoneGroup, state: Base_States):
+    if state == Base_States.TOGGLE:
         grp.mute = not grp.mute
-    if state == "off":
+    if state == Base_States.OFF:
         grp.mute = False
-    if state == "on":
+    if state == Base_States.ON:
         grp.mute = True
     zone_info = {}
     zone_info["mute"] = grp.mute
+    return zone_info
+
+
+def action_repeat(zone: SoCo, state: Repeat_States):
+    if state == Repeat_States.ON:
+        zone.repeat = True
+    if state == Repeat_States.OFF:
+        zone.repeat = False
+    if state == Repeat_States.TOGGLE:
+        zone.repeat = not zone.repeat
+    if state == Repeat_States.ONE:
+        zone.repeat = "ONE"
+    zone_info = {}
+    zone_info["repeat"] = zone.repeat
+    return zone_info
+
+
+def action_shuffle(zone: SoCo, state: Base_States):
+    if state == Base_States.ON:
+        zone.shuffle = True
+    if state == Base_States.OFF:
+        zone.shuffle = False
+    if state == Base_States.TOGGLE:
+        zone.shuffle = not zone.shuffle
+    zone_info = {}
+    zone_info["shuffle"] = zone.shuffle
+    return zone_info
+
+
+def action_play_mode(zone: SoCo, state: Play_Modes):
+    if state == Play_Modes.NORMAL:
+        zone.play_mode = "NORMAL"
+    if state == Play_Modes.REPEAT_ALL:
+        zone.play_mode = "REPEAT_ALL"
+    if state == Play_Modes.REPEAT_ONE:
+        zone.play_mode = "REPEAT_ONE"
+    if state == Play_Modes.SHUFFLE:
+        zone.play_mode = "SHUFFLE"
+    if state == Play_Modes.SHUFFLE_NOREPEAT:
+        zone.play_mode = "SHUFFLE_NOREPEAT"
+    if state == Play_Modes.SHUFFLE_REPEAT_ONE:
+        zone.play_mode = "SHUFFLE_REPEAT_ONE"
+    zone_info = {}
+    zone_info["repeat"] = zone.repeat
+    zone_info["shuffle"] = zone.shuffle
     return zone_info
