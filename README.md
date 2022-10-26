@@ -52,10 +52,14 @@ Returns the info of a specific zone
 [volume](#volume)  
 [groupVolume](#groupvolume)  
 [mute](#mute)  
-[unmute](#unmute)  
-[muteToggle](#mutetoggle)  
+[groupMute](#mute)  
 [join](#join)  
-[unjoin](#unjoin)  
+[leave](#leave)  
+[favorites](#favorites)  
+[queue](#queue)  
+[shuffle](#shuffle)  
+[favorite](#favorite)  
+[play_uri](#play_uri)  
 
 ## next
 Next item in the queue
@@ -85,21 +89,25 @@ Examples:
     /<zone_name>/groupVolume/+10     Increases the volume with 10 percent
     /<zone_name>/groupVolume/-10     Decreases the volume with 10 percent
 
-## mute
-Mutes the zone
-## unmute
-Unmutes the zone
-## muteToggle
-Toggles the mute state of the zone
-## groupMute
-Mutes the group
-## groupUnmute
-Unmutes the group
-## groupMuteToggle
-Toggles the mute state of the group
-## join
+## mute/option
+Controls the mute state of the zone valid options: [on,off,toggle]
+
+## groupMute/option
+Controls the mute state of the group valid options: [on,off,toggle]
+## join/<zone_master>
 Joins the zone into the zone_master
 
     /<zone_name>/join/<zone_master>
-## unjoin
-Unjoins the zone from the group
+## leave
+Leaves the group
+## favorites
+list the favorites
+## queue
+Returns the player queue
+## shuffle
+Turns on Shuffle
+## favorite/<favorite>
+Selects and playes a fovorite.
+Currently tested with Spotify playlists, TuneIn stations and deezer playlists
+## play_uri/<uri>
+Plays uri (very experimental)

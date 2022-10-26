@@ -70,38 +70,26 @@ def action_previous(zone: SoCo) -> dict:
     return zone_info
 
 
-def action_mute(zone: SoCo) -> dict:
-    zone.mute = True
+def action_mute(zone: SoCo, state: str) -> dict:
+    if state == "toggle":
+        zone.mute = not zone.mute
+    if state == "off":
+        zone.mute = False
+    if state == "on":
+        zone.mute = True
     zone_info = {}
     zone_info["mute"] = zone.mute
     return zone_info
 
 
-def action_unmute(zone: SoCo) -> dict:
-    zone.mute = False
-    zone_info = {}
-    zone_info["mute"] = zone.mute
-    return zone_info
-
-
-def action_mute_toggle(zone: SoCo) -> dict:
-    zone.mute = not zone.mute
-
-    zone_info = {}
-    zone_info["mute"] = zone.mute
-    return zone_info
-
-
-def action_group_mute(grp: ZoneGroup):
+def action_group_mute(grp: ZoneGroup, state: str):
     grp.mute = True
-    return
-
-
-def action_group_unmute(grp: ZoneGroup):
-    grp.mute = False
-    return
-
-
-def action_group_mute_toggle(grp: ZoneGroup):
-    grp.mute = not grp.mute
-    return
+    if state == "toggle":
+        grp.mute = not grp.mute
+    if state == "off":
+        grp.mute = False
+    if state == "on":
+        grp.mute = True
+    zone_info = {}
+    zone_info["mute"] = grp.mute
+    return zone_info
