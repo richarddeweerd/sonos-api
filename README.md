@@ -38,7 +38,7 @@ Swagger file http://\<sonos-api\>/docs
 
 # Actions
 ## /zones
-Any call to http://<sonos-api>:8080/ and http://<sonos-api>:8080/zones will rescan the network for new Sonos devices and return all the zone information
+Any call to http://<sonos-api>:80/ and http://<sonos-api>:80/zones will rescan the network for new Sonos devices and return all the zone information
 ## /<zone_name>
 Returns the info of a specific zone
 
