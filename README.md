@@ -18,7 +18,7 @@ Sonos API is available as a Docker image, install with the following Docker comm
 docker pull rdweerd/sonos-api
 ```
 
-After installation the service is running on port 8080
+After installation the service is running on port 80
 
 # Usage
 
@@ -38,7 +38,7 @@ Swagger file http://\<sonos-api\>/docs
 
 # Actions
 ## /zones
-Any call to http://<sonos-api>:8080/ and http://<sonos-api>:8080/zones will rescan the network for new Sonos devices and return all the zone information
+Any call to http://<sonos-api>:80/ and http://<sonos-api>:80/zones will rescan the network for new Sonos devices and return all the zone information
 ## /<zone_name>
 Returns the info of a specific zone
 
