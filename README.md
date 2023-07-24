@@ -18,7 +18,7 @@ Sonos API is available as a Docker image, install with the following Docker comm
 docker pull rdweerd/sonos-api
 ```
 
-After installation the service is running on port 8080
+After installation the service is running on port 80
 
 # Usage
 
